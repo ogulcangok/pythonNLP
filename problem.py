@@ -73,18 +73,6 @@ print("Replaced {} words with characters with an ordinal >= 128 in the train dat
 """spell corrector"""
 from textblob import TextBlob
 df['content'][:5].apply(lambda x: str(TextBlob(x).correct()))
-"""wordcloud to see extreme words, if nonsense"""
-
-all_text = ' '.join([text for text in df['content']])
-print('Number of words in all_text:', len(all_text))
-from wordcloud import WordCloud
-wordcloud = WordCloud( width=800, height=500,
-                      random_state=21, max_font_size=110).generate(all_text)
-plt.figure(figsize=(15, 12))
-plt.imshow(wordcloud, interpolation="bilinear")
-plt.axis('off')
-plt.show()
-
 
 """CLEANER, ADD more regexes, more soecific to news
 Convert content to list, and clean the text with regex"""
