@@ -45,13 +45,12 @@ import matplotlib.image as mpimg
 import base64
 import io
 import matplotlib
-from plotnine import *
 %matplotlib inline
 %config InlineBackend.figure_format = 'svg' 
 plt.style.use('bmh')
 sns.set()  # defines the style of the plots to be seaborn style
 
-df = pd.read_json('/home/asuerdem/Documents/ai_culture/UK_afterJaccard.json')
+df = pd.read_json('/home/asuerdem/Documents/ai_culture/CN_afterJaccard.json')
 
 
 """1) FEATURE INSPECTION 
@@ -69,10 +68,10 @@ df.source.value_counts().index
 """barchart of sources"""
 fig, ax = plt.subplots(1,1,figsize=(8,6))
 source_vc = df.source.value_counts()
-ax.bar(range(7), source_vc)
-ax.set_xticks(range(7))
+ax.bar(range(2), source_vc)
+ax.set_xticks(range(2))
 ax.set_xticklabels(source_vc.index, fontsize=11)
-for rect, c, value in zip(ax.patches, ['b', 'r', 'g', 'y', 'c', 'm'], source_vc.values):
+for rect, c, value in zip(ax.patches, ['b', 'r'], source_vc.values): # , 'g', 'y', 'c', 'm'
     rect.set_color(c)
     height = rect.get_height()
     width = rect.get_width()
@@ -184,7 +183,8 @@ from spacy.lang.en.stop_words import STOP_WORDS
 stop_words = list(STOP_WORDS) # <- set of Spacy's default stop words
 stop_words.extend(['imgs', 'syndigate', 'info', 'jpg', 'http', 'photo','eca', 'nd', 'th', 'st', 
                    'system', 'time', 'year', 'people', 'world', 'technology', "telegraph", "quote_component", "emded_component", "float_left", "guardian_media",
-                   "daily_mail", "datum", "min_width", 'post_publisher', 'nonascii', "margin_left", "margin_right", "html_embed", "network_content"])
+                   "daily_mail", "datum", "min_width", 'post_publisher', 'nonascii', "margin_left", "margin_right", "html_embed",
+                   "embed_component","network_content", "china_daily", "china_morniing", "copyright_south"])
 
 """ 3. Tokenize words and preprocess the text"""
 
@@ -238,17 +238,38 @@ data_lemmatized = remove_stopwords(data_lemmas)# Rem
 """4. Create the Dictionary and Corpus and BOW
 # 4.1 Create Dictionary"""
 id2word = corpora.Dictionary(data_lemmatized) 
-
 """size of dictionary"""
 print("Found {} words.".format(len(id2word.values())))
-
-""" 4.2 filter extremes, before this need to intrıduce zipfs law abuot configuration"""
-id2word.filter_extremes(no_above=0.95, no_below=2)
-id2word.compactify()  # Reindexes the remaining words after filtering
-print("Left with {} words.".format(len(id2word.values())))
-
 """ corpus"""  
 corpus = [id2word.doc2bow(text) for text in data_lemmatized]
+"""check sparsity, for instance, sparse = .99  tokens which are missing from more than 99 of the documents in the corpus. """
+data_dense = gensim.matutils.corpus2dense(corpus, num_docs=len(corpus),
+                                  num_terms= len(id2word.values()))
+print("Sparsicity: ", 1.0 - (data_dense > 0).sum() / data_dense.size)
+"""
+#sklearn vectorizer
+lemmas = data_lemmas.apply(lambda x: ' '.join(x))
+vect = sklearn.feature_extraction.text.CountVectorizer()
+features = vect.fit_transform(lemmas)
+data_dense = features.todense()
+print("Sparsicity: ", 1.0 - (data_dense > 0).sum() / data_dense.size)
+"""
+
+""" 4.2 to make the corpus denser,  filter extremes, before this need to intrıduce zipfs law abuot configuration"""
+id2word.filter_extremes(no_above=0.95, no_below=10)
+id2word.compactify()  # Reindexes the remaining words after filtering
+print("Left with {} words.".format(len(id2word.values())))
+"""size of dictionary"""
+print("Found {} words.".format(len(id2word.values())))
+corpus = [id2word.doc2bow(text) for text in data_lemmatized]
+
+"""check sparsity"""
+data_dense = gensim.matutils.corpus2dense(corpus, num_docs=len(corpus),
+                                  num_terms= len(id2word.values()) )
+print("Sparsicity: ", 1.0 - (data_dense > 0).sum() / data_dense.size)
+
+
+"""toturn the corpus into DF"""
 corp = [[(id2word[id], freq) for id, freq in cp] for cp in corpus[:]]
     
 """ 4.3 tfiidf, vectorizing"""        
@@ -279,7 +300,7 @@ bigr = output[output['word'].str.contains("_")]
 """5 1 aggregating for plotting"""
 from dplython import (DplyFrame, X, diamonds, select, sift, sample_n,
     sample_frac, head, arrange, mutate, group_by, summarize, DelayFunction) 
-dfr = DplyFrame(output)
+dfr = DplyFrame(bigr)
 dfr = (dfr >> 
   group_by(X.word, X.source) >> 
   summarize(tot=X.count.sum()))
@@ -292,7 +313,7 @@ for a, x in dff.values:
     d[a] = x
 wordcloud = WordCloud(width = 1000, height = 1000,
                 background_color ='white',
-                min_font_size =10, max_font_size=150).generate_from_frequencies(frequencies=d)
+                min_font_size =15, max_font_size=120).generate_from_frequencies(frequencies=d)
 plt.figure(figsize = (8, 8), facecolor = None)
 plt.imshow(wordcloud)
 plt.axis("off")
@@ -302,7 +323,7 @@ plt.show()
 """stacked bar plot"""
 dfx = (dfr >>
 arrange(-X.tot))
-dfx=dfx.head(20)
+dfx=dfx.head(50)
 
 from plotnine import *
 (ggplot(dfx, aes(x='word', y='tot', fill='source'))
@@ -311,7 +332,7 @@ from plotnine import *
 )
 """each newspaper"""
 dfr = DplyFrame(output)
-df_tele =(dfr >>sift(X.source=="times"))
+df_tele =(dfr >>sift(X.source=="guardian"))
 df_tele = (df_tele >> 
   group_by(X.word, X.source) >> 
   summarize(tot=X.count.sum()))
@@ -330,30 +351,3 @@ plt.imshow(wordcloud)
 plt.axis("off")
 plt.tight_layout(pad = 0)
 plt.show()
-
-
-
-"""6. TOPIC MODELLING"""
-
-
-
-
- 
-   
-
-#######MALLET#####
-#16. Building LDA Mallet Model
-mallet_path = '/home/asuerdem/Documents/mallet-2.0.8/bin/mallet' # update this path
-ldamallet = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=15, id2word=id2word)
-# Show Topics
-pprint(ldamallet.show_topics(formatted=False))
-
-y =ldamallet.show_topics(formatted=False)
-
-
-
-
-    
-
-
-
