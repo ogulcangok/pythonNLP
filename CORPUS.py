@@ -45,6 +45,7 @@ import matplotlib.image as mpimg
 import base64
 import io
 import matplotlib
+from plotnine import *
 %matplotlib inline
 %config InlineBackend.figure_format = 'svg' 
 plt.style.use('bmh')
