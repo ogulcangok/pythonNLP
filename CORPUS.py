@@ -57,6 +57,16 @@ df = pd.read_json('/home/asuerdem/Documents/ai_culture/CN_afterJaccard.json')
 
 """ 3. Tokenize words and preprocess the text"""
 
+
+"""3.1  Prepare Stopwords"""
+from spacy.lang.en.stop_words import STOP_WORDS
+stop_words = list(STOP_WORDS) # <- set of Spacy's default stop words
+stop_words.extend(['imgs', 'syndigate', 'info', 'jpg', 'http', 'photo','eca', 'nd', 'th', 'st', 
+                   'system', 'time', 'year', 'people', 'world', 'technology', "telegraph", "quote_component", "emded_component", "float_left", "guardian_media",
+                   "daily_mail", "datum", "min_width", 'post_publisher', 'nonascii', "margin_left", "margin_right", "html_embed",
+                   "embed_component","network_content", "china_daily", "china_morniing", "copyright_south"])
+
+
 def sent_to_words(sentences):
     for sentence in sentences:
         yield(gensim.utils.simple_preprocess(str(sentence), deacc=True))  # deacc=True removes punctuations
