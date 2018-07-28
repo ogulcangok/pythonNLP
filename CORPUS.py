@@ -64,12 +64,15 @@ df.isnull().sum()
 
 """ 1.2 Inspect source variable, ayrıca diğer categoric variables için de yapılabilir"""
 """check what sources we have, burada eğer çok az sayıda olan source varsa çıkarma fonksiyonu eklenebilir"""
-df.source.value_counts().index
+nmb = len(df.source.value_counts().index)
+
 """barchart of sources"""
 fig, ax = plt.subplots(1,1,figsize=(8,6))
 source_vc = df.source.value_counts()
-ax.bar(range(2), source_vc)
-ax.set_xticks(range(2))
+
+"""change range acc source no, BURAYA """
+ax.bar(range(nmb), source_vc)
+ax.set_xticks(range(nmb))
 ax.set_xticklabels(source_vc.index, fontsize=11)
 for rect, c, value in zip(ax.patches, ['b', 'r'], source_vc.values): # , 'g', 'y', 'c', 'm'
     rect.set_color(c)
@@ -130,7 +133,8 @@ df['content'][:5].apply(lambda x: str(TextBlob(x).correct()))
 
 
 
-""" 2.1.2 wordcloud to detect extreme words, irregular characters etc... if nonsense, then include them in the SW list"""
+""" 2.1.2 THIS WC IS EXPLORATORY ONLY,  
+ to detect extreme words, irregular characters etc... if nonsense, then include them in the SW list"""
 """this is for flattening the list and bringing all strings into one text"""
 all_text = ' '.join([text for text in df['content']])
 print('Number of words in all_text:', len(all_text))
@@ -278,6 +282,8 @@ tfidf_model = gensim.models.TfidfModel(corpus=corpus,
                                         id2word=id2word)
 corpt = [[(id2word[id], freq) for id, freq in cp] for cp in  tfidf_model[corpus]]
 
+"""ADD TF ALSO"""
+
 
 """4.4 to write the output into df"""
 dat = [pd.DataFrame(el) for el in corp]
@@ -296,11 +302,17 @@ output = output.drop(columns ='content')
 
 """to filter the bigrams only"""
 bigr = output[output['word'].str.contains("_")]
+
+"""FROM THIS PART, 2 STRATEGIES, SAVE THE OUTPUT AND CONTINUE W R OR GO AHEAD W PYTHON"""
+
+
+
+
 """5 plotting"""
 """5 1 aggregating for plotting"""
 from dplython import (DplyFrame, X, diamonds, select, sift, sample_n,
     sample_frac, head, arrange, mutate, group_by, summarize, DelayFunction) 
-dfr = DplyFrame(bigr)
+dfr = DplyFrame(output)
 dfr = (dfr >> 
   group_by(X.word, X.source) >> 
   summarize(tot=X.count.sum()))
@@ -351,3 +363,19 @@ plt.imshow(wordcloud)
 plt.axis("off")
 plt.tight_layout(pad = 0)
 plt.show()
+
+
+
+
+
+ 
+   
+
+
+
+
+
+    
+
+
+
