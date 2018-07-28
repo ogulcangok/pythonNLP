@@ -60,7 +60,7 @@ any data science problem you have and in particular now for text classification.
 """
 """ 1.1 check if there's missing data, bu dedupANDclean konabilir"""
 df.isnull().sum()
-
+"""sil diye bir şey ekenilir, na omit)
 
 """ 1.2 Inspect source variable, ayrıca diğer categoric variables için de yapılabilir"""
 """check what sources we have, burada eğer çok az sayıda olan source varsa çıkarma fonksiyonu eklenebilir"""
@@ -70,7 +70,6 @@ nmb = len(df.source.value_counts().index)
 fig, ax = plt.subplots(1,1,figsize=(8,6))
 source_vc = df.source.value_counts()
 
-"""change range acc source no, BURAYA """
 ax.bar(range(nmb), source_vc)
 ax.set_xticks(range(nmb))
 ax.set_xticklabels(source_vc.index, fontsize=11)
