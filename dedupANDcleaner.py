@@ -162,6 +162,16 @@ print("The average number of words in a document is: {}.".format(np.mean(documen
 print("The minimum number of words in a document is: {}.".format(min(document_lengths)))
 print("The maximum number of words in a document is: {}.".format(max(document_lengths)))    
 
+
+""""following steps needs to be done
+    removes empty lines
+    removes redundant space characters
+    drops lines (and their corresponding lines), that are empty, too short, too long
+    also, sentence tokenizer, and sentence counter neeeded
+    """
+    
+    
+    
 """ 4.2  word distribution by doc"""
 fig, ax = plt.subplots(figsize=(15,6))
 ax.set_title("Distribution of number of words", fontsize=16)
