@@ -53,63 +53,6 @@ sns.set()  # defines the style of the plots to be seaborn style
 df = pd.read_json('/home/asuerdem/Documents/ai_culture/CN_afterJaccard.json')
 
 
-"""1) FEATURE INSPECTION 
-This exploratory phase is always a good thing to start with to get an idea of the data and 
-it will probably help you out making decisions later on in the process of 
-any data science problem you have and in particular now for text classification.
-"""
-""" 1.1 check if there's missing data, bu dedupANDclean konabilir"""
-df.isnull().sum()
-"""sil diye bir şey ekenilir, na omit)
-
-""" 1.2 Inspect source variable, ayrıca diğer categoric variables için de yapılabilir"""
-"""check what sources we have, burada eğer çok az sayıda olan source varsa çıkarma fonksiyonu eklenebilir"""
-nmb = len(df.source.value_counts().index)
-
-"""barchart of sources"""
-fig, ax = plt.subplots(1,1,figsize=(8,6))
-source_vc = df.source.value_counts()
-
-ax.bar(range(nmb), source_vc)
-ax.set_xticks(range(nmb))
-ax.set_xticklabels(source_vc.index, fontsize=11)
-for rect, c, value in zip(ax.patches, ['b', 'r'], source_vc.values): # , 'g', 'y', 'c', 'm'
-    rect.set_color(c)
-    height = rect.get_height()
-    width = rect.get_width()
-    x_loc = rect.get_x()
-    ax.text(x_loc + width/2, 0.5*height, value, ha='center', va='center', fontsize=10, color='white')
-
-"""1.3 Inspect text variables (i.e title, content), min max number"""
-
-"""1.3.1 özet"""
-document_lengths = np.array(list(map(len, df.content.str.split(' '))))
-print("The average number of words in a document is: {}.".format(np.mean(document_lengths)))
-print("The minimum number of words in a document is: {}.".format(min(document_lengths)))
-print("The maximum number of words in a document is: {}.".format(max(document_lengths)))    
-
-""" 1.3.2  word distribution by doc"""
-fig, ax = plt.subplots(figsize=(15,6))
-ax.set_title("Distribution of number of words", fontsize=16)
-ax.set_xlabel("Number of words")
-sns.distplot(document_lengths, bins=50, ax=ax);
-"""detecting very short docs"""
-print("There are {} documents with over 100 words.".format(sum(document_lengths > 100)))
-
-"""1.3.3 distribution in shorter docs, this is to decide if any docs should be excluded"""
-shorter_documents = document_lengths[document_lengths <= 100]
-fig, ax = plt.subplots(figsize=(15,6))
-ax.set_title("Distribution of number of words", fontsize=16)
-ax.set_xlabel("Number of words")
-sns.distplot(shorter_documents, bins=50, ax=ax);
-
-""" 1.3.4 list of shorter docs, 50 in this case, but change according to the analyses above"""
-df[document_lengths <= 50]
-""" filter out  shorter docs)"""
-df = df[document_lengths > 50]
-    
-
-"""MORE TO ADD, lexical diversity, readability, lexical richness etc..."""
 
 """2) Feature creation
 
