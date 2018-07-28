@@ -11,6 +11,18 @@ import re
 import numpy as np
 from collections import Counter
 from pprint import pprint
+#for plotting
+from IPython.display import display
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import base64
+import io
+import matplotlib
+%matplotlib inline
+%config InlineBackend.figure_format = 'svg' 
+plt.style.use('bmh')
+sns.set() # defines the style of the plots to be seaborn style
 
 
 dat = pd.read_json('/home/asuerdem/Documents/ai_culture/UK.json')
@@ -82,7 +94,10 @@ dat = dat.drop(dat.index[jac['Doc2']])
 """
 Drop the corresponing indexes from the main dataframe dat
 """
-
+"""
+This is for cleaning the source, add other categories if they are in the metadata, also find something for the date format as well
+there are two steps to this: 
+"""
 def extract_source(source):
     """
     splits the './' etc. from the source column
