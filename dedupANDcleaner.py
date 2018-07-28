@@ -8,6 +8,10 @@ Created on Sun Jul  8 13:09:25 2018
 
 import pandas as pd
 import re
+import numpy as np
+from collections import Counter
+from pprint import pprint
+
 
 dat = pd.read_json('/home/asuerdem/Documents/ai_culture/UK.json')
 patterns = ['(.*)\s\(','(.*)\s-','(.*)\.co','(.*)\s-']
