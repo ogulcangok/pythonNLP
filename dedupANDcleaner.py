@@ -184,7 +184,8 @@ df = df[document_lengths > 50]
     
 
 
-"""5) Feature creation, prporcess the text
+"""FEATURE EXTRACTION, 
+prporcess the text
 
 The usual approach in natural language processing, is to first kind of cleanse the text. We have to make sure our model can understand similarities and understand when two different words mean similar things. You can't just input the raw text into a model and expect it to understand everything. Therefor, I summarized the most common steps to take in order to achieve this cleansing.
     Remove words that mean little; these are usually words that occur very frequently or words that occur very infrequently. 
@@ -196,11 +197,11 @@ The usual approach in natural language processing, is to first kind of cleanse t
     This basically means create unit vectors for all words.
 ."""
 
-"""5.1 spell corrector", this takes long time to finish, find if there is a faster way"""
+"""1 spell corrector", this takes long time to finish, find if there is a faster way"""
 from textblob import TextBlob
 df['content'][:5].apply(lambda x: str(TextBlob(x).correct()))
 
-""" 5.2 remove non-ascii words"""
+""" 2 remove non-ascii words"""
 df = df.reset_index(drop=True)
 our_special_word = 'nonascii'
 def remove_ascii_words(df):
@@ -216,7 +217,7 @@ print("Replaced {} words with characters with an ordinal >= 128 in the train dat
     len(non_ascii_words)))
 
 
-""" 5.3  text CLEANER, ADD more regexes, more soecific to news"""
+""" 3  text CLEANER, ADD more regexes, more soecific to news"""
 """Convert content to list, and clean the text with regex"""
 data = df.content.values.tolist()
 # Remove Emails
@@ -230,7 +231,7 @@ data = [re.sub("\'", "", content) for content in data]
 
 
 
-""" 5.4 Inspect this WC for any extreöme non sense words,  
+""" 4 Inspect this WC for any extreöme non sense words,  
  to detect extreme words, irregular characters etc... if nonsense, then include them in the SW list"""
 
 """this is for flattening the list and bringing all strings into one text"""
@@ -248,18 +249,7 @@ plt.imshow(wordcloud)
 plt.axis("off")
 plt.tight_layout(pad = 0)
 plt.show()
-
-
-"""5. 5. Prepare Stopwords"""
-from spacy.lang.en.stop_words import STOP_WORDS
-stop_words = list(STOP_WORDS) # <- set of Spacy's default stop words
-stop_words.extend(['imgs', 'syndigate', 'info', 'jpg', 'http', 'photo','eca', 'nd', 'th', 'st', 
-                   'system', 'time', 'year', 'people', 'world', 'technology', "telegraph", "quote_component", "emded_component", "float_left", "guardian_media",
-                   "daily_mail", "datum", "min_width", 'post_publisher', 'nonascii', "margin_left", "margin_right", "html_embed",
-                   "embed_component","network_content", "china_daily", "china_morniing", "copyright_south"])
-    
-    
-    
+   
     
 """MORE TO ADD, lexical diversity, readability, lexical richness etc..."""
 """
